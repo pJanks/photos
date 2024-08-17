@@ -38,6 +38,11 @@
     foreach ($images as $image) {
         $imagePath = "$photosDirectory/$image";
         $thumbnailPath = "$thumbnailsDirectory/$image";
+        $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+
+        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+            continue;
+        }
 
         if (is_file($imagePath)) {
             $thumbDir = dirname($thumbnailPath);
