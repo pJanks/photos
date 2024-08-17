@@ -2,9 +2,11 @@
     ini_set("memory_limit", "10G");
     ini_set("max_execution_time", 300);
 
-    $photosDirectory = __DIR__ . "/photos";
     $thumbnailsDirectory = __DIR__ . "/thumbnails";
+    $photosDirectory = __DIR__ . "/photos";
+    $images = scandir($photosDirectory);
     $thumbWidth = 500;
+    $html = "";
 
     function createThumbnail($imagePath, $thumbnailPath, $thumbWidth) {
         $info = pathinfo($imagePath);
@@ -31,9 +33,6 @@
         imagedestroy($img);
         imagedestroy($thumb);
     }
-
-    $images = scandir($photosDirectory);
-    $html = "";
 
     foreach ($images as $image) {
         $imagePath = "$photosDirectory/$image";
