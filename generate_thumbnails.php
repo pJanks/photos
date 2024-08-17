@@ -68,4 +68,4 @@
         }
     }
 
-    echo "$html\n";
+    echo $html;

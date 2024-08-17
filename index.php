@@ -7,8 +7,6 @@
         <link rel="stylesheet" href="styles.css">
     </head>
     <body>
-        <section class="card-container">
-            <?php require_once 'generate_thumbnails.php' ?>
-        </section>
+        <section class="card-container"><?php require_once "generate_thumbnails.php"; ?></section>
     </body>
 </html>
