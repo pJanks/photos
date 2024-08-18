@@ -4,7 +4,7 @@
 
     $thumbnailsDirectory = __DIR__ . "/thumbnails";
     $photosDirectory = __DIR__ . "/photos";
-    $images = scandir($photosDirectory);
+    $files = scandir($photosDirectory);
     $thumbWidth = 500;
     $html = "";
 
@@ -25,41 +25,37 @@
         $width = imagesx($img);
         $height = imagesy($img);
         $thumbHeight = floor($height * ($thumbWidth / $width));
-
         $thumb = imagecreatetruecolor($thumbWidth, $thumbHeight);
+        
         imagecopyresampled($thumb, $img, 0, 0, 0, 0, $thumbWidth, $thumbHeight, $width, $height);
-
         imagejpeg($thumb, $thumbnailPath);
         imagedestroy($img);
         imagedestroy($thumb);
     }
 
-    foreach ($images as $image) {
-        $imagePath = "$photosDirectory/$image";
-        $thumbnailPath = "$thumbnailsDirectory/$image";
-        $extension = strtolower(pathinfo($imagePath, PATHINFO_EXTENSION));
+    foreach ($files as $file) {
+        $filePath = "$photosDirectory/$file";
+        $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
 
-        if (!in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
-            continue;
-        }
-
-        if (is_file($imagePath)) {
+        if (is_file($filePath) && in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+            $thumbnailPath = "$thumbnailsDirectory/$file";
             $thumbDir = dirname($thumbnailPath);
+
             if (!is_dir($thumbDir)) {
                 mkdir($thumbDir, 0755, true);
             }
-
+            
             if (!file_exists($thumbnailPath)) {
-                createThumbnail($imagePath, $thumbnailPath, $thumbWidth);
+                createThumbnail($filePath, $thumbnailPath, $thumbWidth);
             }
 
             $relativeThumbnailPath = htmlspecialchars(str_replace(__DIR__, "", $thumbnailPath));
-            $relativeImagePath = htmlspecialchars(str_replace(__DIR__, "", $imagePath));
-            $filename = htmlspecialchars(pathinfo($image, PATHINFO_FILENAME));
-            $sanitizedImage = htmlspecialchars($image);
+            $relativeFilePath = htmlspecialchars(str_replace(__DIR__, "", $filePath));
+            $filename = htmlspecialchars(pathinfo($file, PATHINFO_FILENAME));
+            $sanitizedImage = htmlspecialchars($file);
 
             $html .= "<div class=\"card\">";
-            $html .= "<a href=\"$relativeImagePath\" download>";
+            $html .= "<a href=\"$relativeFilePath\" download>";
             $html .= "<img src=\"$relativeThumbnailPath\" alt=\"$sanitizedImage\" loading=\"lazy\">";
             $html .= "</a>";
             $html .= "<span class=\"card-title\">$filename</span>";
