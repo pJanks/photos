@@ -4,14 +4,14 @@
 
     function createThumb($imagePath, $thumbPath, $extension) {
         switch ($extension) {
-            case 'jpg':
-            case 'jpeg':
+            case "jpg":
+            case "jpeg":
                 $img = imagecreatefromjpeg($imagePath);
             break;
-            case 'png':
+            case "png":
                 $img = imagecreatefrompng($imagePath);
             break;
-            case 'gif':
+            case "gif":
                 $img = imagecreatefromgif($imagePath);
             break;
             default:
@@ -42,19 +42,14 @@
         $filePath = "$photosDir/$file";
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
 
-        if (is_file($filePath) && in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
+        if (is_file($filePath) && in_array($extension, ["jpg", "jpeg", "png", "gif"])) {
             $thumbPath = "$thumbsDir/$file";
 
-            if (!is_dir($thumbsDir)) {
-                mkdir($thumbsDir, 0755, true);
-            }
+            if (!is_dir($thumbsDir)) mkdir($thumbsDir, 0755, true);
+            if (!file_exists($thumbPath) && !createThumb($filePath, $thumbPath, $extension)) continue;
             
-            if (!file_exists($thumbPath)) {
-                if (!createThumb($filePath, $thumbPath, $extension)) continue;
-            }
-            
-            $relativeThumbPath = str_replace(__DIR__, '', $thumbPath);
-            $relativeFilePath = str_replace(__DIR__, '', $filePath);
+            $relativeThumbPath = str_replace(__DIR__, "", $thumbPath);
+            $relativeFilePath = str_replace(__DIR__, "", $filePath);
             $filename = pathinfo($file, PATHINFO_FILENAME);
 
             $html .= "
