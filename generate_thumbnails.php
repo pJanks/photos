@@ -2,12 +2,7 @@
     ini_set("memory_limit", "10G");
     ini_set("max_execution_time", 300);
 
-    $thumbnailsDirectory = __DIR__ . "/thumbnails";
-    $photosDirectory = __DIR__ . "/photos";
-    $files = scandir($photosDirectory);
-    $html = "";
-
-    function createThumbnail($imagePath, $thumbnailPath, $extension) {
+    function createThumb($imagePath, $thumbPath, $extension) {
         switch ($extension) {
             case 'jpg':
             case 'jpeg':
@@ -29,31 +24,36 @@
         $thumbWidth = 500;
         $thumbHeight = floor($height * ($thumbWidth / $width));
         $thumb = imagecreatetruecolor($thumbWidth, $thumbHeight);
-        
+
         imagecopyresampled($thumb, $img, 0, 0, 0, 0, $thumbWidth, $thumbHeight, $width, $height);
-        imagejpeg($thumb, $thumbnailPath);
+        imagejpeg($thumb, $thumbPath, 100);
         imagedestroy($img);
         imagedestroy($thumb);
+
         return true;
     }
 
+    $thumbsDir = __DIR__ . "/thumbnails";
+    $photosDir = __DIR__ . "/photos";
+    $files = scandir($photosDir);
+    $html = "";
+
     foreach ($files as $file) {
-        $filePath = "$photosDirectory/$file";
+        $filePath = "$photosDir/$file";
         $extension = strtolower(pathinfo($filePath, PATHINFO_EXTENSION));
 
         if (is_file($filePath) && in_array($extension, ['jpg', 'jpeg', 'png', 'gif'])) {
-            $thumbnailPath = "$thumbnailsDirectory/$file";
-            $thumbDir = dirname($thumbnailPath);
+            $thumbPath = "$thumbsDir/$file";
 
-            if (!is_dir($thumbDir)) {
-                mkdir($thumbDir, 0755, true);
+            if (!is_dir($thumbsDir)) {
+                mkdir($thumbsDir, 0755, true);
             }
             
-            if (!file_exists($thumbnailPath)) {
-                if (!createThumbnail($filePath, $thumbnailPath, $extension)) continue;
+            if (!file_exists($thumbPath)) {
+                if (!createThumb($filePath, $thumbPath, $extension)) continue;
             }
             
-            $relativeThumbPath = str_replace(__DIR__, '', $thumbnailPath);
+            $relativeThumbPath = str_replace(__DIR__, '', $thumbPath);
             $relativeFilePath = str_replace(__DIR__, '', $filePath);
             $filename = pathinfo($file, PATHINFO_FILENAME);
 
