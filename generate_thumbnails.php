@@ -5,25 +5,28 @@
     $thumbnailsDirectory = __DIR__ . "/thumbnails";
     $photosDirectory = __DIR__ . "/photos";
     $files = scandir($photosDirectory);
-    $thumbWidth = 500;
     $html = "";
 
-    function createThumbnail($imagePath, $thumbnailPath, $thumbWidth) {
-        $info = pathinfo($imagePath);
-        $ext = strtolower($info["extension"]);
-
-        if ($ext === "jpg" || $ext === "jpeg") {
-            $img = imagecreatefromjpeg($imagePath);
-        } else if ($ext === "png") {
-            $img = imagecreatefrompng($imagePath);
-        } else if ($ext === "gif") {
-            $img = imagecreatefromgif($imagePath);
-        } else {
-            return false;
+    function createThumbnail($imagePath, $thumbnailPath, $extension) {
+        switch ($extension) {
+            case 'jpg':
+            case 'jpeg':
+                $img = imagecreatefromjpeg($imagePath);
+            break;
+            case 'png':
+                $img = imagecreatefrompng($imagePath);
+            break;
+            case 'gif':
+                $img = imagecreatefromgif($imagePath);
+            break;
+            default:
+                return false;
+            break;
         }
 
         $width = imagesx($img);
         $height = imagesy($img);
+        $thumbWidth = 500;
         $thumbHeight = floor($height * ($thumbWidth / $width));
         $thumb = imagecreatetruecolor($thumbWidth, $thumbHeight);
         
@@ -31,6 +34,7 @@
         imagejpeg($thumb, $thumbnailPath);
         imagedestroy($img);
         imagedestroy($thumb);
+        return true;
     }
 
     foreach ($files as $file) {
@@ -46,21 +50,20 @@
             }
             
             if (!file_exists($thumbnailPath)) {
-                if (!createThumbnail($filePath, $thumbnailPath, $thumbWidth)) continue;
+                if (!createThumbnail($filePath, $thumbnailPath, $extension)) continue;
             }
             
+            $relativeThumbPath = str_replace(__DIR__, '', $thumbnailPath);
             $relativeFilePath = str_replace(__DIR__, '', $filePath);
+            $filename = pathinfo($file, PATHINFO_FILENAME);
 
-            $filename = htmlspecialchars(pathinfo($file, PATHINFO_FILENAME));
-            $sanitizedImage = htmlspecialchars($file);
-
-            $html .= "<div class=\"card\">";
-            $html .= "<a href=\"$relativeFilePath\" download>";
-            $html .= "<img src=\"$relativeFilePath\" alt=\"$sanitizedImage\" loading=\"lazy\">";
-            $html .= "</a>";
-            $html .= "<span class=\"card-title\">$filename</span>";
-            $html .= "</div>";
+            $html .= "
+            <div class=\"card\">
+                <a href=\"$relativeFilePath\" download>
+                    <img src=\"$relativeThumbPath\" alt=\"$filename\" loading=\"lazy\">
+                </a>
+                <span class=\"card-title\">$filename</span>
+            </div>";
         }
-        echo $html;
     }
-
+    echo "$html\n\t\t";
